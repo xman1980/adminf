@@ -10,7 +10,7 @@
 
   vars:
   - adminuser: 'filin'
-  - adminpassword: '$6$xman$JuwCyMJ7zcHe/YZ7H3YxjK.PGO0kF9VJeYw9yxfsDpvUsiwq7d5RPobIER59ergMxRG7vZvpggqyRldIwOikU1'
+  - adminpassword: '$6$kt1hxbrK6pjcAYml$Ecy6oHGjp4I3najQFVDAPT84M7ioTMQ7kGRPWrXndn7CKun13/y2NB2TRgbY8aBl5OX4D70xrQb0K5rHEUV.o.'
 
   tasks:
 
