@@ -1,0 +1,102 @@
+---
+# Ansible Bootstrap
+# =================
+
+
+- name: bootstrap | init ansible clients
+  hosts: newservers
+  gather_facts: yes
+  user: root
+
+  vars:
+  - adminuser: 'filin'
+  - adminpassword: '$6$xman$JuwCyMJ7zcHe/YZ7H3YxjK.PGO0kF9VJeYw9yxfsDpvUsiwq7d5RPobIER59ergMxRG7vZvpggqyRldIwOikU1'
+
+  tasks:
+
+  - name: bootstrap | install system updates for centos systems
+    yum: name=* state=latest update_cache=yes
+    when: ansible_distribution == "CentOS"
+
+  - name: bootstrap | install system updates for ubuntu systems
+    apt: upgrade=dist update_cache=yes
+    when: ansible_distribution == "Ubuntu"
+
+
+  - name: bootstrap | install basic packages
+    action: >
+      {{ ansible_pkg_mgr }} name={{ item }} state=present update_cache=yes
+    with_items:
+      - sudo
+      - nano
+      - mc
+      - vim
+      - curl
+      - wget
+      - screen
+      - ntp
+      - ntpdate
+      - zip
+      - lsof
+      - tmux
+
+  - name: bootstrap | install CentOS packages
+    yum: pkg={{ item }} state=installed
+    with_items:
+     - epel-release
+     - git
+     - python-devel
+     - python-pycurl
+     - libselinux-python
+     - net-tools
+     - python2-pip
+     - make
+     - gcc
+    when: ansible_distribution == "CentOS"
+
+  - name: bootstrap | install pip modules
+    pip: name={{ item }}
+    with_items:
+      - glances
+
+
+  - name: bootstrap  | add admin user
+    action: user name={{ adminuser }} password={{ adminpassword }} uid=9999 groups=root comment="iddqd" createhome=yes state=present
+
+  - name: bootstrap  | add admin authorized key
+    authorized_key:
+                  user: "{{ adminuser }}"
+                  key: https://github.com/xman1980.keys
+                  state: present
+
+  - name: bootstrap | add root authorized key
+    authorized_key:
+                  user: root
+                  key: https://github.com/xman1980.keys
+                  state: present
+
+  - name: bootstrap | customize admin home
+    get_url: url=https://raw.githubusercontent.com/xman1980/skel/master/xman/{{item}}  dest=/home/{{ adminuser }} mode=0644
+    with_items:
+    - .bashrc
+
+  - name: bootstrap | customize root home
+    get_url: url=https://raw.githubusercontent.com/xman1980/skel/master/root/{{item}}  dest=/home/{{ adminuser }} mode=0644
+    with_items:
+    - .bashrc
+
+  - name: bootstrap | configure sudoers
+    lineinfile: dest=/etc/sudoers.d/{{ adminuser }} owner=root group=root mode=0440
+                line="{{ adminuser }} ALL=(ALL) NOPASSWD:ALL"
+                state=present
+                create=yes
+                validate='visudo -cf %s'
+
+  - name: bootstrap | reboot
+    shell: sleep 2 && shutdown -r now "Ansible updates triggered"
+    async: 1
+    poll: 0
+    ignore_errors: true
+
+  - name: bootstrap | waiting for server to come back
+    local_action: wait_for host={{ inventory_hostname }} state=started delay=30 timeout=100
