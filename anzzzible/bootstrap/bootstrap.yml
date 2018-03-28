@@ -10,7 +10,7 @@
 
   vars:
   - adminuser: 'filin'
-  - adminpassword: '$6$kt1hxbrK6pjcAYml$Ecy6oHGjp4I3najQFVDAPT84M7ioTMQ7kGRPWrXndn7CKun13/y2NB2TRgbY8aBl5OX4D70xrQb0K5rHEUV.o.'
+  - adminpazz: '$6$kt1hxbrK6pjcAYml$Ecy6oHGjp4I3najQFVDAPT84M7ioTMQ7kGRPWrXndn7CKun13/y2NB2TRgbY8aBl5OX4D70xrQb0K5rHEUV.o.'
 
   tasks:
 
@@ -61,7 +61,7 @@
 
 
   - name: bootstrap  | add admin user
-    action: user name={{ adminuser }} password={{ adminpassword }} uid=9999 groups=root comment="iddqd" createhome=yes state=present
+    action: user name={{ adminuser }} password={{ adminpazz }} uid=9999 groups=root comment="iddqd" createhome=yes state=present
 
   - name: bootstrap  | add admin authorized key
     authorized_key:
@@ -76,12 +76,12 @@
                   state: present
 
   - name: bootstrap | customize admin home
-    get_url: url=https://raw.githubusercontent.com/xman1980/skel/master/xman/{{item}}  dest=/home/{{ adminuser }} mode=0644
+    get_url: url=https://raw.githubusercontent.com/xman1980/adminf/master/skel/xman/{{item}}  dest=/home/{{ adminuser }}/{{ item }} mode=0644 force=yes
     with_items:
     - .bashrc
 
   - name: bootstrap | customize root home
-    get_url: url=https://raw.githubusercontent.com/xman1980/skel/master/root/{{item}}  dest=/home/{{ adminuser }} mode=0644
+    get_url: url=https://raw.githubusercontent.com/xman1980/adminf/master/skel/root/{{item}}  dest=/root/{{ item }} mode=0644 force=yes
     with_items:
     - .bashrc
 
