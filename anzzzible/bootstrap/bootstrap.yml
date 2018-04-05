@@ -49,7 +49,7 @@
      - python-pycurl
      - libselinux-python
      - net-tools
-     - python2-pip
+     - python-pip
      - make
      - gcc
     when: ansible_distribution == "CentOS"
